@@ -1,0 +1,29 @@
+Setup:
+	Database Tables:
+		run shema.sql against mysql
+
+	Mod_Python:
+		sudo yum remove httpd
+		sudo yum remove httpd-tools
+		sudo yum install mod_python27
+
+	MYSQLdb for Python:
+		sudo yum install gcc
+		sudo yum install mysql-devel
+		sudo pip install --upgrade pip
+		sudo /usr/local/bin/pip install MYSQL-python
+
+	Apache and api stuff:
+		drop ccg.conf in /etc/http/conf.d
+		drop db.py in /var/www/api
+		mv /etc/httpd/conf.d/python.conf /etc/httpd/conf.d/python.conf.old
+		sudo service httpd restart
+
+
+Test URLs:
+http://ccgapi.coolcatgames.com/db.py/getLevelsForGame?game=ccg
+http://ccgapi.coolcatgames.com/db.py/getData?game=ccg&user=jgood&dataName=test
+http://ccgapi.coolcatgames.com/db.py/setData?game=ccg&user=jgood&dataName=test&data=ThisIsData2
+http://strangerthings.coolcatgames.com/db.py/peek
+http://strangerthings.coolcatgames.com/db.py/dequeue
+http://strangerthings.coolcatgames.com/db.py/enqueue?value=test
