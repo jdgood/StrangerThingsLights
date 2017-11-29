@@ -1,0 +1,60 @@
+<html>
+	<head>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script> 
+		<!--<script src="http://malsup.github.com/jquery.form.js"></script>-->
+		<script> 
+			$("#queueOpen").hide();
+			$.get('http://strangerthingsapi.coolcatgames.com/db.py/peek',
+				function(response) {
+					if(response == "") {
+						$("#queueOpen").show();
+						$("#queueClosed").hide();
+					} else {
+						$("#queueOpen").hide();
+						$("#queueClosed").show();
+					}
+				}
+			);
+
+			// wait for the DOM to be loaded
+			$(document).ready(function() {
+				//Add ajax call to hide or show form
+				// Validate a phone number field
+				$("#myForm").submit(function(event) {
+					var message = $("#value").val();
+
+					// Match only letters and spaces
+					var alphaRegex = /^[A-Za-z ]+$/;
+
+					// If the phone number doesn't match the regex
+					if (!alphaRegex.test(message)) {
+						// Usually show some kind of error message here
+						// Prevent the form from submitting
+						event.preventDefault();
+						alert("Message can only contain letters and spaces")
+					} else {
+						$.get('http://strangerthingsapi.coolcatgames.com/db.py/enqueue?value=' + message,
+							function(data, status) {
+								$("#queueOpen").hide();
+								$("#queueClosed").show();
+							}
+						);
+					}
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<div id="queueOpen">
+			<form id="myForm">
+				Message from the upside down: <input type="text" id="value" name="value" value="">
+				<br/>
+				<input type="submit">
+			</form>
+		</div>
+		<div id="queueClosed">
+			A message from the Upside Down is queued
+		</div>
+	</body>
+</html>
+

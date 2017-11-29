@@ -1,21 +1,37 @@
-Setup:
+Setup (Assuming centos el7):
 	Database Tables:
+		sudo yum install wget
+		wget http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
+		sudo rpm -ivh mysql-community-release-el7-5.noarch.rpm
+		yum update
+		sudo yum install mysql mysql-server
+		sudo systemctl start mysqld
+		mysql -hlocalhost -uroot
 		run shema.sql against mysql
 
 	Mod_Python:
-		sudo yum remove httpd
-		sudo yum remove httpd-tools
-		sudo yum install mod_python27
+		sudo yum clean all
+		sudo yum -y update
+		sudo yum install git httpd httpd-devel python-devel
+		sudo yum groupinstall "Development Tools"
+		git clone https://github.com/grisha/mod_python.git
+		./configure -with-apxs=/usr/bin/apxs
+		make
+		sudo make install
 
 	MYSQLdb for Python:
 		sudo yum install gcc
 		sudo yum install mysql-devel
+		curl -O https://bootstrap.pypa.io/get-pip.py
+		python get-pip.py
 		sudo pip install --upgrade pip
+		sudo yum install python-devel
 		sudo /usr/local/bin/pip install MYSQL-python
 
 	Apache and api stuff:
 		drop ccg.conf in /etc/http/conf.d
 		drop db.py in /var/www/api
+		drop db.py in /var/www/html/strangerThings
 		mv /etc/httpd/conf.d/python.conf /etc/httpd/conf.d/python.conf.old
 		sudo service httpd restart
 
@@ -24,6 +40,6 @@ Test URLs:
 http://ccgapi.coolcatgames.com/db.py/getLevelsForGame?game=ccg
 http://ccgapi.coolcatgames.com/db.py/getData?game=ccg&user=jgood&dataName=test
 http://ccgapi.coolcatgames.com/db.py/setData?game=ccg&user=jgood&dataName=test&data=ThisIsData2
-http://strangerthings.coolcatgames.com/db.py/peek
-http://strangerthings.coolcatgames.com/db.py/dequeue
-http://strangerthings.coolcatgames.com/db.py/enqueue?value=test
+http://strangerthingsapi.coolcatgames.com/db.py/peek
+http://strangerthingsapi.coolcatgames.com/db.py/dequeue
+http://strangerthingsapi.coolcatgames.com/db.py/enqueue?value=test
