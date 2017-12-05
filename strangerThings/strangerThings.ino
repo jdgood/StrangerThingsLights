@@ -9,7 +9,7 @@
 CRGB leds[NUM_LEDS];
 
 //Array of colors to make them accessible via a number
-CRGB colors[13];
+CHSV colors[13];
 
 //Map of char values a=0; z=25 used to create a range of lights per letter
 int charToLedRange[26];
@@ -18,27 +18,33 @@ int charToLedRange[26];
 String randomMessages[2];
 
 //Pretty standard colors
-CRGB white = CRGB(255,255,255);
-CRGB red = CRGB (255, 0, 0);
-CRGB green = CRGB(0, 255, 0);
-CRGB blue = CRGB(0, 0, 255);
+CHSV white = CHSV(0, 0, 255);
+CHSV red = CHSV(0, 255, 255);
+CHSV green = CHSV(85, 255, 255);
+CHSV blue = CHSV(170, 255, 255);
 
 //Some random colors that seem to look pretty good with the theme
-CRGB hotPink = CRGB (255,105,180);
-CRGB darkGreen = CRGB(0,128,0);
-CRGB darkPurple = CRGB(76, 0, 153);
-CRGB royalBlue = CRGB(65,105,255);
-CRGB orange = CRGB(255,165,0);
-CRGB springGreen = CRGB(0,255,127);
-CRGB yellow = CRGB(255,255,0);
-CRGB darkOrchid = CRGB(153, 50, 204);
-CRGB aqua = CRGB(0,255,255);
+CHSV hotPink = CHSV(234,150,255);
+CHSV darkGreen = CHSV(85,255,128);
+CHSV darkPurple = CHSV(191, 255, 153);
+CHSV royalBlue = CHSV(161, 190, 255);
+CHSV orange = CHSV(28, 255, 255);
+CHSV springGreen = CHSV(150, 100, 100);
+CHSV yellow = CHSV(43, 255, 255);
+CHSV darkOrchid = CHSV(198, 193, 204);
+CHSV aqua = CHSV(128, 255, 255);
 
 //Black aka light is off
-CRGB off = CRGB(0, 0, 0);
+CHSV off = CHSV(0, 0, 0);
 
 //Sets up the initial values and libraries
 void setup() {
+  //Set the data rate for the SoftwareSerial port to start listening for input
+  Serial.begin(9600);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+
 	//Register our ledIndex->color array to FastLED
 	FastLED.addLeds<WS2811, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS);
 
@@ -98,14 +104,8 @@ void setup() {
 	setAll(off);
 
 	//Demo modes to display are colors above via modulus and random algortihms
-	ledsSequential();
-	abcsRandom();
-
-	//Set the data rate for the SoftwareSerial port to start listening for input
-	Serial.begin(9600);
-
-	//Send the initial prompt to the console
-	Serial.print("Send a message from the upside down: ");
+	//ledsSequential();
+	//abcsRandom();
 }
 
 //Sets all leds to a certain color. This includes off, which is useful for resetting to a clean state
@@ -118,45 +118,61 @@ void setAll(CRGB color) {
 
 //Lights up all lights sequentially using a modulus to iterate through the colors
 void ledsSequential() {
-	for (int i = 0; i < 25; i++) {
+	for (int i = 0; i < 100; i++) {
 		leds[i] = colors[i % 13];
 		FastLED.show();
-		delay(250);
+		delay(100);
 	}
 	setAll(off);
 }
 
+//Lights up all lights sequentially using a modulus to iterate through the colors
+void cycleAll() {
+  for (int i = 0; i < 13; i++) {
+    setAll(colors[i]);
+    delay(1000);
+  }
+  setAll(off);
+}
+
 //Returns a random color from the array
-CRGB randomColor() {
+CHSV randomColor() {
 	int t = random(13);
 	return colors[t];
 }
 
 //Print a-z sequentially using a random numbers to pick colors
 void abcsRandom() {
-	for (int i = 0; i < 25; i++) {
+  for (int i = 0; i < 26; i++) {
     displayLetter(i, 250, false);
-	}
+  }
 	setAll(off);
 }
 
 //The main program, which just infinitely loops
 void loop() {
-	//Print out the queued message, otherwise pring our random word and some random letters
-	if(!typeQueued()) {
-		wordRandomizer();
-		letterRandomizer();
-	}
+  //setAll(yellow);
+  //delay(500);
+  //setAll(off);
+  //delay(500);
+
+  //cycleAll();
+
+  //abcsRandom();
+
+  //Print out the queued message, otherwise print our random word and some random letters
+  if(!typeQueued()) {
+    //wordRandomizer();
+    //letterRandomizer();
+  }
+  //type("a a");
 }
 
 //Type out if anyone has input anything, return false if nothing to print
 boolean typeQueued() {
 	if (Serial.available()) {
 		String message = Serial.readString();
-		Serial.println("Sending message");
 		type(message);
-		Serial.println("Message sent");
-		Serial.print("Send a message from the upside down: ");
 		return true;
 	}
 	return false;
@@ -179,32 +195,50 @@ void letterRandomizer() {
 
 //Forces a range of 0-25 (a-z) for simple array mapping purposes
 int charToInt(char c) {
-	return (int)c - '0';
+  return (int)c - 'A';
 }
 
 //Turns the lights on for a corresponding letter, can also set the delay between lights and if the lights should stay illuminated
 void displayLetter(int charRepRangeStart, int timeDelay, boolean reset) {
 	int ledStart = charToLedRange[charRepRangeStart];
-	int ledEnd = (charRepRangeStart + 1) == 27 ? charToLedRange[charRepRangeStart + 1] : -1;
+  int ledEnd = 0;
+  if(charRepRangeStart >= 0 && charRepRangeStart < 7) {
+    ledEnd = ledStart;
+    ledStart = charToLedRange[charRepRangeStart + 1];
+  } else if(charRepRangeStart == 7) {
+    ledEnd = ledStart;
+    ledStart = charToLedRange[16];
+  } else if(charRepRangeStart > 7 && charRepRangeStart < 16) {
+    ledEnd = charToLedRange[charRepRangeStart + 1];
+  } else if(charRepRangeStart == 16) {
+    ledEnd = charToLedRange[7];
+  } else if(charRepRangeStart > 16 && charRepRangeStart < 25) {
+    ledEnd = ledStart;
+    ledStart = charToLedRange[charRepRangeStart + 1];
+  } else if(charRepRangeStart == 25) {
+    ledEnd = -1;
+  }
 
-	for(int i = ledStart; i < ledEnd; i--) {
+  for(int i = ledStart; i < ledEnd; i++) {
 #pragma message(Reminder "TODO: Maybe set some lights that will always be off (mainly due to ones that are along the wrap around)"
-		leds[i] = randomColor();
-	}
-	FastLED.show();
-	delay(timeDelay);
-	if(reset) {
-		for(int i = ledStart; i < ledEnd; i--) {
-			leds[i] = off;
-		}
-		FastLED.show();
-	}
+    leds[i] = randomColor();
+  }
+  FastLED.show();
+
+  delay(timeDelay);
+
+  if(reset) {
+    for(int i = ledStart; i < ledEnd; i++) {
+      leds[i] = off;
+    }
+    FastLED.show();
+  }
 }
 
 //Type out a message, while waiting until the previous letter's lights turns off after 2 seconds
 void type(String message){
-	message.toLowerCase();
-	for(int i =0; i< message.length();i++){
+	message.toUpperCase();
+	for(int i = 0; i < message.length(); i++){
 		//Spaces will illuminate everything white (TODO: may want to use a dimmer white)
 		if(isWhitespace(message[i])){
 			setAll(white);
