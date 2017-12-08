@@ -4,12 +4,13 @@
 #define DATA_PIN 7  //this is the data pin connected to the LED strip.  If using WS2801 you also need a clock pin
 #define NUM_LEDS 100 //change this for the number of LEDs in the strip
 #define COLOR_ORDER RGB
+#define NUM_COLORS 12
 
 //The array of ledIndex->color used by the FastLED library
 CRGB leds[NUM_LEDS];
 
 //Array of colors to make them accessible via a number
-CHSV colors[13];
+CHSV colors[NUM_COLORS];
 
 //Map of char values a=0; z=25 used to create a range of lights per letter
 int charToLedRange[26];
@@ -18,7 +19,7 @@ int charToLedRange[26];
 String randomMessages[2];
 
 //Pretty standard colors
-CHSV white = CHSV(0, 0, 255);
+CHSV white = CHSV(0, 0, 150);
 CHSV red = CHSV(0, 255, 255);
 CHSV green = CHSV(85, 255, 255);
 CHSV blue = CHSV(170, 255, 255);
@@ -53,34 +54,34 @@ void setup() {
 
 	//Map for letters a=0, z=25 to max led value in range, i.e a=49 b=47 so range=[48,49]
 	//There may be some customization to this depending on how many lights you'll have per a letter
-	charToLedRange[0] = 49;//A
-	charToLedRange[1] = 47;//B
-	charToLedRange[2] = 45;//C
-	charToLedRange[3] = 43;//D
-	charToLedRange[4] = 41;//E
-	charToLedRange[5] = 39;//F
-	charToLedRange[6] = 37;//G
-	charToLedRange[7] = 35;//H
+	charToLedRange[0] = 98;//A
+	charToLedRange[1] = 94;//B
+	charToLedRange[2] = 91;//C
+	charToLedRange[3] = 88;//D
+	charToLedRange[4] = 84;//E
+	charToLedRange[5] = 82;//F
+	charToLedRange[6] = 80;//G
+	charToLedRange[7] = 76;//H
 
-	charToLedRange[8] = 18;//I
-	charToLedRange[9] = 20;//J
-	charToLedRange[10] = 22;//K
-	charToLedRange[11] = 24;//L
-	charToLedRange[12] = 26;//M
-	charToLedRange[13] = 28;//N
-	charToLedRange[14] = 30;//O
-	charToLedRange[15] = 31;//P
-	charToLedRange[16] = 32;//Q
+	charToLedRange[8] = 41;//I
+	charToLedRange[9] = 44;//J
+	charToLedRange[10] = 48;//K
+	charToLedRange[11] = 50;//L
+	charToLedRange[12] = 54;//M
+	charToLedRange[13] = 58;//N
+	charToLedRange[14] = 60;//O
+	charToLedRange[15] = 63;//P
+	charToLedRange[16] = 66;//Q
 
-	charToLedRange[17] = 15;//R
-	charToLedRange[18] = 13;//S
-	charToLedRange[19] = 11;//T
-	charToLedRange[20] =  9;//U
-	charToLedRange[21] =  7;//V
-	charToLedRange[22] =  5;//W
-	charToLedRange[23] =  3;//X
-	charToLedRange[24] =  1;//Y
-	charToLedRange[25] =  0;//Z
+	charToLedRange[17] = 33;//R
+	charToLedRange[18] = 30;//S
+	charToLedRange[19] = 27;//T
+	charToLedRange[20] =  24;//U
+	charToLedRange[21] =  20;//V
+	charToLedRange[22] =  17;//W
+	charToLedRange[23] =  14;//X
+	charToLedRange[24] =  11;//Y
+	charToLedRange[25] =  8;//Z
 
 	//Some random colors that seem to look pretty good with the theme
 	colors[0] = white;
@@ -88,13 +89,13 @@ void setup() {
 	colors[2] = green;
 	colors[3] = blue;
 	colors[4] = darkGreen;
-	colors[6] = darkPurple;
-	colors[7] = royalBlue;
-	colors[8] = orange;
-	colors[9] = springGreen;
-	colors[10] = yellow;
-	colors[11] = darkOrchid;
-	colors[12] = aqua;
+	colors[5] = darkPurple;
+	colors[6] = royalBlue;
+	colors[7] = orange;
+	colors[8] = springGreen;
+	colors[9] = yellow;
+	colors[10] = darkOrchid;
+	colors[11] = aqua;
 
 	//Random messages for when nothing is queued to be printed
 	randomMessages[0] = "upside down";
@@ -119,7 +120,7 @@ void setAll(CRGB color) {
 //Lights up all lights sequentially using a modulus to iterate through the colors
 void ledsSequential() {
 	for (int i = 0; i < 100; i++) {
-		leds[i] = colors[i % 13];
+		leds[i] = colors[i % NUM_COLORS];
 		FastLED.show();
 		delay(100);
 	}
@@ -128,16 +129,37 @@ void ledsSequential() {
 
 //Lights up all lights sequentially using a modulus to iterate through the colors
 void cycleAll() {
-  for (int i = 0; i < 13; i++) {
+  for (int i = 0; i < NUM_COLORS; i++) {
     setAll(colors[i]);
     delay(1000);
   }
   setAll(off);
 }
 
+//Lights up i to q sequentially
+void AToH() {
+  for (int i = 0; i < 8; i++) {
+    displayLetter(i, 1000, true);
+  }
+}
+
+//Lights up i to q sequentially
+void IToQ() {
+  for (int i = 8; i < 17; i++) {
+    displayLetter(i, 1000, true);
+  }
+}
+
+//Lights up r to z sequentially
+void RToZ() {
+  for (int i = 17; i < 26; i++) {
+    displayLetter(i, 1000, true);
+  }
+}
+
 //Returns a random color from the array
 CHSV randomColor() {
-	int t = random(13);
+	int t = random(NUM_COLORS);
 	return colors[t];
 }
 
@@ -157,12 +179,16 @@ void loop() {
   //delay(500);
 
   //cycleAll();
+  //AToH();
+  //IToQ();
+  //RToZ();
+  //displayLetter(7, 1000, false);
 
   //abcsRandom();
 
   //Print out the queued message, otherwise print our random word and some random letters
   if(!typeQueued()) {
-    //wordRandomizer();
+    wordRandomizer();
     //letterRandomizer();
   }
   //type("a a");
@@ -202,25 +228,41 @@ int charToInt(char c) {
 void displayLetter(int charRepRangeStart, int timeDelay, boolean reset) {
 	int ledStart = charToLedRange[charRepRangeStart];
   int ledEnd = 0;
-  if(charRepRangeStart >= 0 && charRepRangeStart < 7) {
+  if(charRepRangeStart == 0) {
+    // A
+    ledEnd = ledStart;
+    ledStart = ledEnd - 5;
+  } else if(charRepRangeStart > 0 && charRepRangeStart < 7) {
+    // B to G
     ledEnd = ledStart;
     ledStart = charToLedRange[charRepRangeStart + 1];
   } else if(charRepRangeStart == 7) {
+    // H
     ledEnd = ledStart;
-    ledStart = charToLedRange[16];
-  } else if(charRepRangeStart > 7 && charRepRangeStart < 16) {
-    ledEnd = charToLedRange[charRepRangeStart + 1];
+    ledStart = ledEnd - 4;
+  } else if(charRepRangeStart == 8) {
+    // I
+    ledEnd = ledStart;
+    ledStart = ledEnd - 3;
+  } else if(charRepRangeStart > 8 && charRepRangeStart < 16) {
+    // J to P
+    ledEnd = ledStart;
+    ledStart = charToLedRange[charRepRangeStart - 1];
   } else if(charRepRangeStart == 16) {
-    ledEnd = charToLedRange[7];
+    // Q
+    ledEnd = ledStart;
+    ledStart = ledEnd - 3;
   } else if(charRepRangeStart > 16 && charRepRangeStart < 25) {
+    // R to Y
     ledEnd = ledStart;
     ledStart = charToLedRange[charRepRangeStart + 1];
   } else if(charRepRangeStart == 25) {
-    ledEnd = -1;
+    // Z
+    ledEnd = charToLedRange[25];
+    ledStart = ledEnd - 3;
   }
 
   for(int i = ledStart; i < ledEnd; i++) {
-#pragma message(Reminder "TODO: Maybe set some lights that will always be off (mainly due to ones that are along the wrap around)"
     leds[i] = randomColor();
   }
   FastLED.show();
@@ -235,17 +277,26 @@ void displayLetter(int charRepRangeStart, int timeDelay, boolean reset) {
   }
 }
 
+void fadeColor(CHSV color) {
+#pragma message(Reminder "TODO: fad over a time period, firgure out the ratio")
+  CHSV faded = CHSV(color.hue, color.saturation, 0);
+  for(int brightness = color.value; brightness > 30; brightness--) {
+    faded.value = brightness;
+    setAll(faded);
+    delay(10);
+  }
+  setAll(off);
+}
+
 //Type out a message, while waiting until the previous letter's lights turns off after 2 seconds
 void type(String message){
 	message.toUpperCase();
 	for(int i = 0; i < message.length(); i++){
-		//Spaces will illuminate everything white (TODO: may want to use a dimmer white)
+		//Spaces will illuminate everything white
 		if(isWhitespace(message[i])){
-			setAll(white);
-			delay(2000);
-			setAll(off);
+      fadeColor(white);
 		} else {
-			displayLetter(charToInt(message[i]), 2000, true);
+			displayLetter(charToInt(message[i]), 1500, true);
 		}
 	}
 #pragma message(Reminder "TODO: add a flicker effect here")
