@@ -1,5 +1,24 @@
 <html>
 	<head>
+		<style media="screen" type="text/css">
+			.content {
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				-webkit-transform: translate(-50%, -50%);
+				transform: translate(-50%, -50%);
+			}
+
+			{ margin: 0; padding: 0; }
+
+			html { 
+				background: url('https://github.com/dfresh613/strangerLights/raw/master/strangerWeb/messagereceiver/static/messagereceiver/images/strangerthings.jpg') no-repeat center center fixed; 
+				-webkit-background-size: cover;
+				-moz-background-size: cover;
+				-o-background-size: cover;
+				background-size: cover;
+			}
+		</style>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script> 
 		<!--<script src="http://malsup.github.com/jquery.form.js"></script>-->
 		<script> 
@@ -45,15 +64,15 @@
 		</script>
 	</head>
 	<body>
-		<div id="queueOpen">
-			<form id="myForm">
-				Message from the upside down: <input type="text" id="value" name="value" value="">
-				<br/>
-				<input type="submit">
-			</form>
-		</div>
-		<div id="queueClosed">
-			A message from the Upside Down is queued
+		<div class="content">
+			<div id="queueOpen">
+				<form id="myForm">
+					<font color="white">Message from the upside down: </font><input type="text" id="value" name="value" value=""> <input type="submit">
+				</form>
+			</div>
+			<div id="queueClosed">
+				A message from the Upside Down is queued
+			</div>
 		</div>
 	</body>
 </html>
